@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Cursos | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+  <span class="text-uppercase text-cloud-accent fw-bold small">Catalogo</span>
+  <h1 class="display-6 fw-bold mb-1">Cursos CloudLearn</h1>
+  <p class="text-secondary mb-0">Consulta cursos disponibles, materiales y gestion academica.</p>
+</section>
+
+<section class="row g-4">
+  {% for course in courses %}
+    <div class="col-md-6 col-xl-4">
+      <article class="card h-100 course-card">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between gap-3 mb-2">
+            <h2 class="h5 fw-bold mb-0">{{ course.title }}</h2>
+            <span class="badge text-bg-success align-self-start">{{ course.status_label }}</span>
+          </div>
+          <p class="text-secondary flex-grow-1">{{ course.description }}</p>
+          <p class="small text-secondary mb-3">Docente: {{ course.teacher.name }}</p>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-cloud btn-sm" href="{{ url_for('main.course_detail', course_id=course.id) }}">Abrir</a>
+            {% if current_user.role == "admin" or current_user.id == course.teacher_id %}
+              <a class="btn btn-cloud btn-sm" href="{{ url_for('main.course_manage', course_id=course.id) }}">Gestionar</a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    </div>
+  {% else %}
+    <div class="col-12">
+      <div class="card card-body text-secondary">No hay cursos registrados.</div>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

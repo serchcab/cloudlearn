@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Editar curso" if course else "Nuevo curso" }} | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+  <div class="col-lg-8">
+    <article class="card">
+      <div class="card-body p-4">
+        <span class="text-uppercase text-cloud-accent fw-bold small">Cursos</span>
+        <h1 class="h3 fw-bold mb-3">{{ "Editar curso" if course else "Crear curso" }}</h1>
+        <form method="post" class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="title">Titulo</label>
+            <input class="form-control" id="title" name="title" type="text" value="{{ course.title if course else '' }}" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="description">Descripcion</label>
+            <textarea class="form-control" id="description" name="description" rows="5" required>{{ course.description if course else '' }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="status">Estado</label>
+            <select class="form-select" id="status" name="status" required>
+              <option value="draft" {% if course and course.status == "draft" %}selected{% endif %}>Borrador</option>
+              <option value="active" {% if not course or course.status == "active" %}selected{% endif %}>Activo</option>
+              <option value="finished" {% if course and course.status == "finished" %}selected{% endif %}>Finalizado</option>
+            </select>
+          </div>
+          {% if current_user.role == "admin" %}
+            <div class="col-md-6">
+              <label class="form-label" for="teacher_id">Docente responsable</label>
+              <select class="form-select" id="teacher_id" name="teacher_id" required>
+                {% for teacher in teachers %}
+                  <option value="{{ teacher.id }}" {% if course and course.teacher_id == teacher.id %}selected{% endif %}>{{ teacher.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-cloud" type="submit">{{ "Guardar cambios" if course else "Crear curso" }}</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.course_list') }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

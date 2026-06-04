@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesion | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+  <div class="col-md-7 col-lg-5">
+    <article class="card shadow-sm">
+      <div class="card-body p-4">
+        <span class="text-uppercase text-cloud-accent fw-bold small">Acceso</span>
+        <h1 class="h3 fw-bold mb-3">Iniciar sesion</h1>
+        <form method="post" class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="email">Correo</label>
+            <input class="form-control" id="email" name="email" type="email" placeholder="admin@cloudlearn.local" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="password">Contrasena</label>
+            <input class="form-control" id="password" name="password" type="password" placeholder="Tu contrasena" required>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-cloud w-100" type="submit">Entrar</button>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

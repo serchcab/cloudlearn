@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+  <span class="text-uppercase text-cloud-accent fw-bold small">Analitica academica</span>
+  <h1 class="display-6 fw-bold mb-1">Reportes de cursos</h1>
+  <p class="text-secondary mb-0">Indicadores rapidos de actividad, entregas y desempeno.</p>
+</section>
+
+<section class="card">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Curso</th>
+          <th>Docente</th>
+          <th>Estado</th>
+          <th>Estudiantes</th>
+          <th>Materiales</th>
+          <th>Tareas</th>
+          <th>Entregas</th>
+          <th>Promedio curso</th>
+          <th>Promedio tareas</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in report_rows %}
+          <tr>
+            <td class="fw-semibold">{{ row.course.title }}</td>
+            <td>{{ row.course.teacher.name }}</td>
+            <td><span class="badge text-bg-success">{{ row.course.status_label }}</span></td>
+            <td>{{ row.students }}</td>
+            <td>{{ row.materials }}</td>
+            <td>{{ row.assignments }}</td>
+            <td>{{ row.submissions }}</td>
+            <td>{{ row.average_grade if row.average_grade is not none else "N/A" }}</td>
+            <td>{{ row.average_submission_grade if row.average_submission_grade is not none else "N/A" }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-cloud" href="{{ url_for('main.course_manage', course_id=row.course.id) }}">Gestionar</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="10" class="text-secondary">No hay cursos para reportar.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

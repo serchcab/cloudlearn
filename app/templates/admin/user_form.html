@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Editar usuario | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+  <div class="col-lg-7">
+    <article class="card">
+      <div class="card-body p-4">
+        <span class="text-uppercase text-cloud-accent fw-bold small">Administracion</span>
+        <h1 class="h3 fw-bold mb-3">Editar usuario</h1>
+        <form method="post" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="name">Nombre completo</label>
+            <input class="form-control" id="name" name="name" type="text" value="{{ user.name }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="email">Correo</label>
+            <input class="form-control" id="email" name="email" type="email" value="{{ user.email }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="role">Rol</label>
+            <select class="form-select" id="role" name="role" required>
+              <option value="student" {% if user.role == "student" %}selected{% endif %}>Estudiante</option>
+              <option value="teacher" {% if user.role == "teacher" %}selected{% endif %}>Docente</option>
+              <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Administrador</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="password">Nueva contrasena</label>
+            <input class="form-control" id="password" name="password" type="password" placeholder="Opcional">
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" id="active" name="active" type="checkbox" {% if user.active %}checked{% endif %}>
+              <label class="form-check-label" for="active">Usuario activo</label>
+            </div>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-cloud" type="submit">Guardar cambios</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.user_admin') }}">Volver</a>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

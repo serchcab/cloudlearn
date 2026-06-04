@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Panel | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+  <span class="text-uppercase text-cloud-accent fw-bold small">{{ current_user.role_label }}</span>
+  <h1 class="display-6 fw-bold mb-1">Bienvenido, {{ current_user.name }}</h1>
+  <p class="text-secondary mb-0">Resumen operativo de la plataforma CloudLearn.</p>
+</section>
+
+<section class="row g-3 mb-4">
+  <div class="col-md-4">
+    <article class="card metric-card h-100">
+      <div class="card-body">
+        <span class="text-secondary">Estudiantes</span>
+        <strong class="d-block display-6">{{ stats.students }}</strong>
+      </div>
+    </article>
+  </div>
+  <div class="col-md-4">
+    <article class="card metric-card h-100">
+      <div class="card-body">
+        <span class="text-secondary">Docentes</span>
+        <strong class="d-block display-6">{{ stats.teachers }}</strong>
+      </div>
+    </article>
+  </div>
+  <div class="col-md-4">
+    <article class="card metric-card h-100">
+      <div class="card-body">
+        <span class="text-secondary">Cursos</span>
+        <strong class="d-block display-6">{{ stats.courses }}</strong>
+      </div>
+    </article>
+  </div>
+</section>
+
+{% if current_user.role == "student" %}
+  <section class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-white fw-bold">Tareas pendientes</div>
+        <div class="list-group list-group-flush">
+          {% for assignment in pending_assignments %}
+            <a class="list-group-item list-group-item-action" href="{{ url_for('main.course_detail', course_id=assignment.course_id) }}">
+              <div class="fw-semibold">{{ assignment.title }}</div>
+              <small class="text-secondary">{{ assignment.course.title }} | {{ assignment.due_date.strftime("%d/%m/%Y") if assignment.due_date else "Sin fecha" }}</small>
+            </a>
+          {% else %}
+            <div class="list-group-item text-secondary">No tienes tareas pendientes.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-white fw-bold">Mis cursos</div>
+        <div class="list-group list-group-flush">
+          {% for enrollment in enrollments %}
+            <a class="list-group-item list-group-item-action" href="{{ url_for('main.course_detail', course_id=enrollment.course.id) }}">
+              <div class="fw-semibold">{{ enrollment.course.title }}</div>
+              <small class="text-secondary">Avance: {{ enrollment.progress }}% | Calificacion: {{ enrollment.grade or "Pendiente" }}</small>
+            </a>
+          {% else %}
+            <div class="list-group-item text-secondary">No tienes cursos inscritos.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% else %}
+  <section class="row g-4">
+    {% if current_user.role == "admin" %}
+      <div class="col-xl-6">
+        <div class="card h-100">
+          <div class="card-header bg-white fw-bold">Cursos recientes</div>
+          <div class="list-group list-group-flush">
+            {% for course in recent_courses %}
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ url_for('main.course_manage', course_id=course.id) }}">
+                <span>
+                  <span class="fw-semibold d-block">{{ course.title }}</span>
+                  <small class="text-secondary">{{ course.teacher.name }}</small>
+                </span>
+                <span class="badge text-bg-success">{{ course.status_label }}</span>
+              </a>
+            {% else %}
+              <div class="list-group-item text-secondary">No hay cursos recientes.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="col-xl-6">
+      <div class="card h-100">
+        <div class="card-header bg-white fw-bold">Entregas recientes</div>
+        <div class="list-group list-group-flush">
+          {% for submission in recent_submissions %}
+            <a class="list-group-item list-group-item-action" href="{{ url_for('main.course_manage', course_id=submission.assignment.course_id) }}">
+              <div class="fw-semibold">{{ submission.assignment.title }}</div>
+              <small class="text-secondary">{{ submission.student.name }} | {{ submission.assignment.course.title }}</small>
+            </a>
+          {% else %}
+            <div class="list-group-item text-secondary">No hay entregas recientes.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card mt-4">
+    <div class="card-header bg-white fw-bold">Resumen academico</div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Curso</th>
+            <th>Estudiantes</th>
+            <th>Tareas</th>
+            <th>Entregas</th>
+            <th>Promedio curso</th>
+            <th>Promedio tareas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in report_rows %}
+            <tr>
+              <td class="fw-semibold">{{ row.course.title }}</td>
+              <td>{{ row.students }}</td>
+              <td>{{ row.assignments }}</td>
+              <td>{{ row.submissions }}</td>
+              <td>{{ row.average_grade if row.average_grade is not none else "N/A" }}</td>
+              <td>{{ row.average_submission_grade if row.average_submission_grade is not none else "N/A" }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-secondary">No hay informacion academica disponible.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}CloudLearn | Academia digital{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Academia digital en la nube</p>
+    <h1>Gestiona cursos, estudiantes y progreso academico desde una sola plataforma.</h1>
+    <p class="lead">Base inicial para el proyecto CloudLearn, preparada para trabajar localmente y crecer hacia Azure App Service.</p>
+    <a class="button" href="{{ url_for('auth.login') }}">Entrar a la plataforma</a>
+  </div>
+</section>
+
+<section class="grid">
+  <article class="panel">
+    <h2>Roles</h2>
+    <p>Administrador, docente y estudiante con permisos diferenciados.</p>
+  </article>
+  <article class="panel">
+    <h2>Cursos</h2>
+    <p>Consulta de cursos, docentes responsables y avance academico.</p>
+  </article>
+  <article class="panel">
+    <h2>Escalable</h2>
+    <p>Lista para usar PostgreSQL local y despues migrar a Azure SQL.</p>
+  </article>
+</section>
+{% endblock %}

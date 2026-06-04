@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar curso | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="card mb-4 course-hero">
+  <div class="card-body p-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+      <div>
+        <span class="text-uppercase text-cloud-accent fw-bold small">Gestion academica</span>
+        <h1 class="display-6 fw-bold mb-2">{{ course.title }}</h1>
+        <p class="text-secondary mb-0">{{ course.description }}</p>
+      </div>
+      <div class="d-flex flex-wrap align-items-start gap-2">
+        <span class="badge text-bg-success mt-1">{{ course.status_label }}</span>
+        <a class="btn btn-sm btn-outline-cloud" href="{{ url_for('main.course_edit', course_id=course.id) }}">Editar curso</a>
+        <form method="post" action="{{ url_for('main.course_delete', course_id=course.id) }}" onsubmit="return confirm('Deseas eliminar este curso?');">
+          <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar curso</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row g-4 mb-4">
+  <div class="col-lg-4">
+    <article class="card h-100">
+      <div class="card-header bg-white fw-bold">Inscribir estudiante</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('main.course_enroll', course_id=course.id) }}" class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="student_id">Estudiante</label>
+            <select class="form-select" id="student_id" name="student_id" required>
+              {% for student in students %}
+                <option value="{{ student.id }}">{{ student.name }} - {{ student.email }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-cloud w-100" type="submit">Inscribir</button>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+
+  <div class="col-lg-4">
+    <article class="card h-100">
+      <div class="card-header bg-white fw-bold">Agregar material</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('main.material_new', course_id=course.id) }}" class="row g-3" enctype="multipart/form-data">
+          <div class="col-12">
+            <label class="form-label" for="title">Titulo</label>
+            <input class="form-control" id="title" name="title" type="text" required>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label" for="material_type">Tipo</label>
+            <select class="form-select" id="material_type" name="material_type">
+              <option>PDF</option>
+              <option>Video</option>
+              <option>Enlace</option>
+              <option>Documento</option>
+            </select>
+          </div>
+          <div class="col-md-7">
+            <label class="form-label" for="url">URL del recurso</label>
+            <input class="form-control" id="url" name="url" type="url" placeholder="https://...">
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="file">Archivo local</label>
+            <input class="form-control" id="file" name="file" type="file">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-cloud w-100" type="submit">Agregar material</button>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+
+  <div class="col-lg-4">
+    <article class="card h-100">
+      <div class="card-header bg-white fw-bold">Crear tarea</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('main.assignment_new', course_id=course.id) }}" class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="assignment-title">Titulo</label>
+            <input class="form-control" id="assignment-title" name="title" type="text" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="instructions">Instrucciones</label>
+            <textarea class="form-control" id="instructions" name="instructions" rows="4" required></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="due_date">Fecha limite</label>
+            <input class="form-control" id="due_date" name="due_date" type="date">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-cloud w-100" type="submit">Crear tarea</button>
+          </div>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="card mb-4">
+  <div class="card-header bg-white fw-bold">Estudiantes inscritos y calificaciones</div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Correo</th>
+          <th style="width: 140px;">Avance</th>
+          <th style="width: 150px;">Calificacion</th>
+          <th style="width: 120px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for enrollment in course.enrollments %}
+          <tr>
+            <td class="fw-semibold">{{ enrollment.student.name }}</td>
+            <td>{{ enrollment.student.email }}</td>
+            <form method="post" action="{{ url_for('main.enrollment_grade', enrollment_id=enrollment.id) }}">
+              <td><input class="form-control form-control-sm" name="progress" type="number" min="0" max="100" value="{{ enrollment.progress }}" required></td>
+              <td><input class="form-control form-control-sm" name="grade" type="number" min="0" max="10" step="0.1" value="{{ enrollment.grade or '' }}"></td>
+              <td><button class="btn btn-sm btn-outline-cloud" type="submit">Actualizar</button></td>
+            </form>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-secondary">No hay estudiantes inscritos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card mb-4">
+  <div class="card-header bg-white fw-bold">Tareas y entregas</div>
+  <div class="accordion accordion-flush" id="assignmentsAccordion">
+    {% for assignment in course.assignments %}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#assignment-{{ assignment.id }}" aria-expanded="false" aria-controls="assignment-{{ assignment.id }}">
+            <span class="fw-semibold">{{ assignment.title }}</span>
+            <span class="ms-3 text-secondary small">{{ assignment.due_date.strftime("%d/%m/%Y") if assignment.due_date else "Sin fecha" }}</span>
+          </button>
+        </h2>
+        <div id="assignment-{{ assignment.id }}" class="accordion-collapse collapse" data-bs-parent="#assignmentsAccordion">
+          <div class="accordion-body">
+            <p class="text-secondary">{{ assignment.instructions }}</p>
+            {% for submission in assignment.submissions %}
+              <form method="post" action="{{ url_for('main.submission_grade', submission_id=submission.id) }}" class="submission-card">
+                <div>
+                  <strong>{{ submission.student.name }}</strong>
+                  <p class="text-secondary mb-0">{{ submission.answer }}</p>
+                </div>
+                <div>
+                  <label class="form-label">Calificacion</label>
+                  <input class="form-control form-control-sm" name="grade" type="number" min="0" max="10" step="0.1" value="{{ submission.grade if submission.grade is not none else '' }}" required>
+                </div>
+                <div>
+                  <label class="form-label">Retroalimentacion</label>
+                  <textarea class="form-control form-control-sm" name="feedback" rows="2">{{ submission.feedback or '' }}</textarea>
+                </div>
+                <button class="btn btn-sm btn-cloud align-self-end" type="submit">Calificar</button>
+              </form>
+            {% else %}
+              <div class="text-secondary">No hay entregas todavia.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="p-3 text-secondary">No hay tareas registradas.</div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header bg-white fw-bold">Materiales publicados</div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Titulo</th>
+          <th>Tipo</th>
+          <th>Recurso</th>
+          <th style="width: 160px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for material in course.materials %}
+          <tr>
+            <td class="fw-semibold">{{ material.title }}</td>
+            <td>{{ material.material_type }}</td>
+            <td class="text-truncate" style="max-width: 420px;">{{ material.url }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-2">
+                <a class="btn btn-sm btn-outline-cloud" href="{{ material.url }}" target="_blank" rel="noreferrer">Abrir</a>
+                <form method="post" action="{{ url_for('main.material_delete', material_id=material.id) }}">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="text-secondary">No hay materiales registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

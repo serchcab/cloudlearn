@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} | CloudLearn{% endblock %}
+
+{% block content %}
+<section class="card mb-4 course-hero">
+  <div class="card-body p-4">
+    <span class="text-uppercase text-cloud-accent fw-bold small">Curso</span>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+      <div>
+        <h1 class="display-6 fw-bold mb-2">{{ course.title }}</h1>
+        <p class="text-secondary mb-0">{{ course.description }}</p>
+      </div>
+      <span class="badge text-bg-success align-self-start">{{ course.status_label }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card metric-card h-100"><div class="card-body"><span class="text-secondary">Docente</span><strong class="d-block">{{ course.teacher.name }}</strong></div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card metric-card h-100"><div class="card-body"><span class="text-secondary">Creacion</span><strong class="d-block">{{ course.created_at.strftime("%d/%m/%Y") }}</strong></div></div>
+  </div>
+  {% if enrollment %}
+    <div class="col-md-3">
+      <div class="card metric-card h-100"><div class="card-body"><span class="text-secondary">Mi avance</span><strong class="d-block">{{ enrollment.progress }}%</strong></div></div>
+    </div>
+    <div class="col-md-3">
+      <div class="card metric-card h-100"><div class="card-body"><span class="text-secondary">Mi calificacion</span><strong class="d-block">{{ enrollment.grade or "Pendiente" }}</strong></div></div>
+    </div>
+  {% endif %}
+</section>
+
+<section class="card mb-4">
+  <div class="card-header bg-white fw-bold">Tareas</div>
+  <div class="list-group list-group-flush">
+    {% for assignment in course.assignments %}
+      {% set submission = submissions_by_assignment.get(assignment.id) %}
+      <div class="list-group-item">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+          <div>
+            <h2 class="h5 fw-bold mb-1">{{ assignment.title }}</h2>
+            <p class="text-secondary mb-1">{{ assignment.instructions }}</p>
+            <small class="text-secondary">Fecha limite: {{ assignment.due_date.strftime("%d/%m/%Y") if assignment.due_date else "Sin fecha" }}</small>
+          </div>
+          {% if submission %}
+            <span class="badge text-bg-info align-self-start">Entregada</span>
+          {% endif %}
+        </div>
+
+        {% if current_user.role == "student" %}
+          {% if submission %}
+            <div class="alert alert-light border">
+              <strong>Entrega registrada</strong>
+              <p class="mb-1">{{ submission.answer }}</p>
+              <p class="mb-1">Calificacion: {{ submission.grade if submission.grade is not none else "Pendiente" }}</p>
+              {% if submission.feedback %}
+                <p class="mb-0">Retroalimentacion: {{ submission.feedback }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+          <form method="post" action="{{ url_for('main.assignment_submit', assignment_id=assignment.id) }}" class="row g-2">
+            <div class="col-12">
+              <label class="form-label" for="answer-{{ assignment.id }}">Respuesta</label>
+              <textarea class="form-control" id="answer-{{ assignment.id }}" name="answer" rows="4" required>{{ submission.answer if submission else '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-cloud" type="submit">{{ "Actualizar entrega" if submission else "Entregar tarea" }}</button>
+            </div>
+          </form>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="list-group-item text-secondary">No hay tareas registradas.</div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header bg-white fw-bold">Materiales</div>
+  <div class="list-group list-group-flush">
+    {% for material in course.materials %}
+      <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ material.url }}" target="_blank" rel="noreferrer">
+        <span>
+          <span class="fw-semibold d-block">{{ material.title }}</span>
+          <small class="text-secondary">{{ material.material_type }} | Agregado por {{ material.created_by.name }}</small>
+        </span>
+        <span class="btn btn-sm btn-outline-cloud">Abrir</span>
+      </a>
+    {% else %}
+      <div class="list-group-item text-secondary">No hay materiales registrados.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
